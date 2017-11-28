@@ -1,0 +1,75 @@
+extends layout
+
+block scripts
+	script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js")
+	script(src="/javascripts/index.js")
+
+block content
+	h1 Twitch extension demo
+	b You must use the channel's numerical ID, not the channel name
+	br
+	b The extension must be installed on the channel and the stream must be live for comms to work
+	br
+	b All output messages will be shown in the viewer's browser console
+	br
+	a(href="/render") Click here to re-render the front end HTML
+	br
+	br
+	
+	| <b>Send a test message, using websockets, to all users in a channel</b>
+	form#testChannelSocket
+		label Channel ID
+		br
+		input#testChannelID
+		br
+		label Message
+		br
+		input#testChannelMessage
+		br
+		button.submit SEND
+
+	br
+	br
+	| <b>Send a test message, using websockets, to a particular user in a channel. The viewer's Socket ID will be shown in the browser console</b>
+	form#testUserSocket
+		label Socket ID
+		br
+		input#testSocketID
+		br
+		label Message
+		br
+		input#testSocketMessage
+		br
+		button.submit SEND
+
+	br
+	br
+	| <b>Send a test message, using Twitch PubSub, to all users in a channel</b>
+	form#testPubsubBroadcast
+		label Channel
+		br
+		input#testPubsubChannelID
+		br
+		label Message
+		br
+		input#testBroadcastMessage
+		br
+		button.submit SEND
+
+	br
+	br
+	| <b>Send a test message, using Twitch PubSub, to a particular user in a channel. The viewer's Opaque ID will be shown in the browser console</b>
+	form#testPubsubWhisper
+		label Channel
+		br
+		input#testWhisperChannelID
+		br
+		label Opaque ID
+		br
+		input#testOpaqueID
+		br
+		label Message
+		br
+		input#testWhisperMessage
+		br
+		button.submit SEND
