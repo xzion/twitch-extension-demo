@@ -53,7 +53,6 @@ $(function() {
 	// be called and then register the listener here.
 	function whisperHack() {
 		if (!firstTimeOnly) {
-			console.log("Subbing to pubsub whisper");
 			// Listen to this viewer's private PubSub whisper channel
 			twitch.listen('whisper-'+latestAuth.userId, (target, type, msg) => {
 				console.log("New Twitch PubSub whisper:", msg);
