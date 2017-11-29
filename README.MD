@@ -77,6 +77,7 @@ When you're ready to publish your extension, you'll need to host your EBS somewh
 
 * Read the [extensions docs](https://dev.twitch.tv/docs/extensions) very thoroughly, multiple times. Most questions can be answered there.
 * Read the [extensions API reference](https://dev.twitch.tv/docs/extensions/reference) very thoroughly. This covers calls you can make to the API, the JWT schema, and the functionality of the Twitch Javascript Helper that you include in your extension html pages.
+* If you've definitely read the docs multiple times and can't find your answer, head over to the [Twitch Dev forums](https://discuss.dev.twitch.tv/c/extensions)
 
 Stuff that everyone seems to miss in the docs
 * No inline `<script>javascript</script>` in your html pages that go to Twitch
