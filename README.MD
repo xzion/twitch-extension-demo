@@ -63,7 +63,7 @@ New socket 'whisper' message: hello from the EBS
 
 #### Folder Structure
 
-Everything inside the `frontend` folder is what you're going to give to Twitch to host on their CDN (minus the .pug files). The demo uses [Pug](https://pugjs.org/api/getting-started.html) templates for the viewer/config/live pages, which are rendered every time you start the demo app, and can be re-rendered while the app is live by clicking the link on the comms test page (or visiting `/render`). If you want to modify names or add more templates to the render function, you can find it in `routes/index.js`.
+Everything inside the `frontend` folder is what you're going to give to Twitch to host on their CDN (minus the .pug files). The demo uses [Pug](https://pugjs.org/api/getting-started.html) templates for the viewer/config/live pages, which are rendered every time you start the demo app, and can be re-rendered while the app is live by clicking the link on the comms test page (or visiting `/render`). `viewer.pug` generates `viewer.html`, which is the page loaded into the video overlay, `live.pug` generates `live.html` which is shown on `Dashboard -> Live`, and `config.pug` generates `config.html` which is shown in as the configuration page for your extension. If you want to modify names or add more templates to the render function, you can find it in `routes/index.js`.
 
 Everything outside the `frontend` folder is your Extension Backend Service (EBS). The demo follows the standard Express genenator layout. Routing is in `routes`, templates for pages on the EBS are in `views`, and all of your public assests for EBS pages are in `public`.
 
