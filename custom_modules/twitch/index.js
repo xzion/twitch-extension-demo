@@ -1,81 +1,87 @@
-const socketIO = require('socket.io');
 const jwt = require('jsonwebtoken');
-const request = require('request');
+const rpn = require('request-promise-native');
+const wins = require('winston');
+const {promisify} = require('util');
 
-if (!process.env.EXTENSION_SECRET_KEY || !process.env.EXTENSION_CLIENT_ID) {
-	throw Error("Missing environment variables! Read the docs!");
+// Promisified goodies
+const verifyAsync = promisify(jwt.verify);
+const signAsync = promisify(jwt.sign);
+
+
+if (!process.env.EXTENSION_SECRET_KEY ||
+    !process.env.EXTENSION_CLIENT_ID ||
+    !process.env.DEVELOPER_USER_ID) {
+    throw Error("Missing environment variables! Read the docs!");
 }
 
-const io = socketIO();
-var twitch = {};
-twitch.io = io;
+// JWT needs the secret as a buffer
+const BINARY_SECRET = Buffer.from(process.env.EXTENSION_SECRET_KEY, 'base64');
 
-var SECRET = Buffer.from(process.env.EXTENSION_SECRET_KEY, 'base64');
-var CLIENTID = process.env.EXTENSION_CLIENT_ID;
+// Our export object
+let twitch = {};
 
-// JWT verification middleware
-io.use((socket, next) => {
-	let token = socket.handshake.query.jwt;
+// Create JWT's to go with requests
+async function createServerJWT (channel) {
+    // 60min expiry
+    let timeNow = new Date();
+    timeNow.setMinutes(timeNow.getMinutes() + 60);
 
-	jwt.verify(token, SECRET, (err, decoded) => {
-		if (err) {
-			console.log("Failed to verify JWT for connection");
-			next(new Error('authentication err'));
-		} else {
-			console.log("Verified socket connection");
-			console.log(JSON.stringify(decoded, null, '  '));
-			socket.jwt = decoded;
-			next();
-		}
-	});
-});
+    // Create and sign JWT. Role must be 'external'
+    let rawJWT = {
+        exp: Math.floor(timeNow/1000),
+        user_id: process.env.DEVELOPER_USER_ID, // the account that owns the extension
+        channel_id: channel,
+        role: 'external',
+        pubsub_perms: {
+            send: ["*"]
+        }
+    }
+    return await signAsync(rawJWT, BINARY_SECRET);
+}
 
-// New connection or reconnection
-io.on('connection', (socket) => {
-	console.log("A user connected by socket from channel " + socket.jwt.channel_id + "!");
-	console.log("Socket ID is", socket.id);
 
-	socket.join(socket.jwt.channel_id);
-	socket.emit('whisper', "hello from the EBS");
-});
+// Twitch PubSub messaging
+twitch.sendPubSub = async (channel, target, contentType, message) => {
+    try {
+        let devJWT = await createServerJWT(channel);
 
-// Twitch PubSub infrastructure
-twitch.sendPubSub = (channel, target, contentType, message) => {
-	let timeNow = new Date();
-	timeNow.setMinutes(timeNow.getMinutes() + 60);
+        // Target has to be a list. Turn strings into one element lists
+        if (typeof target == 'string') {
+            target = [target];
+        }
 
-	// Create and sign JWT. Role must be 'external'
-	let rawJWT = {
-		exp: Math.floor(timeNow/1000),
-		channel_id: channel,
-		role: 'external',
-		pubsub_perms: {
-			send: ["*"]
-		}
-	}
-	let signedJWT = jwt.sign(rawJWT, SECRET);
+        await rpn.post({
+            url: "https://api.twitch.tv/extensions/message/"+channel,
+            headers: {
+                "Client-ID": process.env.EXTENSION_CLIENT_ID,
+                "Authorization": "Bearer " + devJWT
+            },
+            json: {
+                content_type: contentType,
+                targets: target,
+                message: message
+            }
+        });
+    } catch (e) {
+        wins.error("Failed to send Twitch PubSub message: " + e);
+        throw {
+            status: 500,
+            msg: "Failed to send PubSub message"
+        }
+    }
+}
 
-	// Push to twitch, JWT is auth bearer
-	request.post({
-		url: "https://api.twitch.tv/extensions/message/"+channel,
-		headers: {
-			"Client-ID": CLIENTID,
-			"Authorization": "Bearer " + signedJWT
-		},
-		json: {
-			content_type: contentType,
-			targets: [target], // Must be an array
-			message: message
-		}
-	}, (err, httpResponse, body) => {
-		if (err) {
-			console.log("Pubsub send failed: " + err);
-		} else if (httpResponse.statusCode != 204) {
-			console.log("Pubsub send failed, error code: " + httpResponse.statusCode);
-		}
-
-		console.log("Successfully sent pubsub message");
-	});
+// For external functions to verify JWT's
+twitch.verifyJWT = async (token) => {
+    try {
+        return await verifyAsync(token, BINARY_SECRET);
+    } catch (e) {
+        wins.debug("Failed to verify JWT: " + e);
+        throw {
+            status: 400,
+            msg: "Failed to verify Twitch JWT"
+        };
+    }
 }
 
 
