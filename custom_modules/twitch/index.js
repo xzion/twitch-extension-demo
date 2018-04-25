@@ -9,10 +9,12 @@ const signAsync = promisify(jwt.sign);
 
 
 if (!process.env.EXTENSION_SECRET_KEY ||
-    !process.env.EXTENSION_CLIENT_ID ||
     !process.env.DEVELOPER_USER_ID ||
-    !process.env.EXTENSION_VERSION ||
-    !process.env.EXTENSION_CONFIG_STRING) {
+    //!process.env.EXTENSION_VERSION ||
+    //!process.env.EXTENSION_CONFIG_STRING ||
+    //!process.env.EBS_SECRET ||
+    //!process.env.OAUTH_REDIRECT_URI ||
+    !process.env.EXTENSION_CLIENT_ID) {
     throw Error("Missing environment variables! Read the docs!");
 }
 
