@@ -10,7 +10,9 @@ const signAsync = promisify(jwt.sign);
 
 if (!process.env.EXTENSION_SECRET_KEY ||
     !process.env.EXTENSION_CLIENT_ID ||
-    !process.env.DEVELOPER_USER_ID) {
+    !process.env.DEVELOPER_USER_ID ||
+    !process.env.EXTENSION_VERSION ||
+    !process.env.EXTENSION_CONFIG_STRING) {
     throw Error("Missing environment variables! Read the docs!");
 }
 
@@ -39,9 +41,8 @@ async function createServerJWT (channel) {
     return await signAsync(rawJWT, BINARY_SECRET);
 }
 
-
 // Twitch PubSub messaging
-twitch.sendPubSub = async (channel, target, contentType, message) => {
+twitch.sendPubSub = async function (channel, target, contentType, message) {
     try {
         let devJWT = await createServerJWT(channel);
 
@@ -72,7 +73,7 @@ twitch.sendPubSub = async (channel, target, contentType, message) => {
 }
 
 // For external functions to verify JWT's
-twitch.verifyJWT = async (token) => {
+twitch.verifyJWT = async function (token) {
     try {
         return await verifyAsync(token, BINARY_SECRET);
     } catch (e) {
@@ -81,6 +82,36 @@ twitch.verifyJWT = async (token) => {
             status: 400,
             msg: "Failed to verify Twitch JWT"
         };
+    }
+}
+
+// Sets the channel required config to the correct value
+twitch.approveChannel = async function (channelID) {
+    await twitch.setChannelConfigString(channelID, process.env.EXTENSION_CONFIG_STRING);
+}
+
+// Available for developer testing and/or disabling channels
+twitch.setChannelConfigString = async function (channelID, configString) {
+    try {
+        let devJWT = await createServerJWT(channelID);
+        let safeURL = encodeURI("https://api.twitch.tv/extensions/" + process.env.EXTENSION_CLIENT_ID + "/" + process.env.EXTENSION_VERSION + "/required_configuration?channel_id=" + channelID);
+
+        await rpn.put({
+            url: safeURL,
+            headers: {
+                "Client-Id": process.env.EXTENSION_CLIENT_ID,
+                "Authorization": "Bearer " + devJWT
+            },
+            json: {
+                required_configuration: configString
+            }
+        });
+    } catch (e) {
+        wins.error("Failed to set required channel config string for channel " + channelID + ": " + e);
+        throw {
+            status: 500,
+            msg: "Internal server error"
+        }
     }
 }
 
