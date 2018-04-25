@@ -178,6 +178,48 @@ twitch.getUserInfo = async function (userID, access_token) {
     }
 }
 
+// Recursive helper. Note: may 404 for extensions in test phase
+async function loopChannels (cursor) {
+    let baseUrl = `https://api.twitch.tv/extensions/${process.env.EXTENSION_CLIENT_ID}/live_activated_channels`;
+    if (cursor) {
+        baseUrl += "?cursor=" + cursor;
+    }
+
+    let parsedList = [];
+    let newCursor = null;
+
+    try {
+        let body = await rpn.get({
+            url: baseUrl,
+            json: true,
+            headers: {
+                "Client-Id": process.env.EXTENSION_CLIENT_ID
+            }
+        });
+        parsedList = body.channels;
+        newCursor = body.cursor;
+    } catch (e) {
+        wins.error("Failed to query twitch for live channels!");
+        wins.error(e);
+        throw({
+            status: 500,
+            msg: "Something went wrong"
+        });
+    }
+
+    if (newCursor) {
+        let remainingChannels = await loopChannels(newCursor);
+        parsedList = parsedList.concat(remainingChannels);
+    }
+
+    return parsedList;
+}
+
+// For gettign the full list of currently live channels
+twitch.getLiveChannels = async function () {
+    return await loopChannels();
+}
+
 
 
 module.exports = twitch;
