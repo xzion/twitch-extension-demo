@@ -117,5 +117,48 @@ twitch.setChannelConfigString = async function (channelID, configString) {
     }
 }
 
+// For processing Twitch OAuth callbacks. Returns the verification data and tokens
+twitch.getOAuthTokens = async function (code) {
+    try {
+        // Ask for tokens
+        let tokenUrl = `https://id.twitch.tv/oauth2/token`;
+
+        // Remember this needs to use the other type of secret
+        let formData = {
+            client_id: process.env.EXTENSION_CLIENT_ID,
+            client_secret: process.env.EBS_SECRET,
+            code: code,
+            grant_type: "authorization_code",
+            redirect_uri: process.env.OAUTH_REDIRECT_URI
+        };
+
+        // Get the tokens
+        let res = await rpn.post({
+            url:tokenUrl,
+            form: formData
+        });
+        let tokens = JSON.parse(res)
+
+        // Verify it
+        let verificationInfo = await rpn.get({
+            url: "https://id.twitch.tv/oauth2/validate",
+            headers: {
+                Authorization: "OAuth " + tokens.access_token
+            },
+            json: true
+        });
+        verificationInfo.tokens = tokens;
+
+        return verificationInfo;
+    } catch (e) {
+        wins.error("Failed to process and verify Twitch OAuth callback: " + e);
+        throw {
+            status: 500,
+            msg: "Internal server error"
+        }
+    }
+}
+
+
 
 module.exports = twitch;
