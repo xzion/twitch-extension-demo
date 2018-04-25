@@ -7,8 +7,8 @@ if (!process.env.EXTENSION_SECRET_KEY || !process.env.EXTENSION_CLIENT_ID) {
 }
 
 const io = socketIO();
-var twitchSockets = {};
-twitchSockets.io = io;
+var twitch = {};
+twitch.io = io;
 
 var SECRET = Buffer.from(process.env.EXTENSION_SECRET_KEY, 'base64');
 var CLIENTID = process.env.EXTENSION_CLIENT_ID;
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
 });
 
 // Twitch PubSub infrastructure
-twitchSockets.sendPubSub = (channel, target, contentType, message) => {
+twitch.sendPubSub = (channel, target, contentType, message) => {
 	let timeNow = new Date();
 	timeNow.setMinutes(timeNow.getMinutes() + 60);
 
@@ -79,4 +79,4 @@ twitchSockets.sendPubSub = (channel, target, contentType, message) => {
 }
 
 
-module.exports = twitchSockets;
+module.exports = twitch;

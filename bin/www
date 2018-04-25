@@ -29,8 +29,8 @@ let options = {
 var server = https.createServer(options, app);
 
 // TWITCH SOCKETS
-var ts = require('../custom_modules/twitch_sockets');
-ts.io.listen(server);
+var twitch = require('../custom_modules/twitch');
+twitch.io.listen(server);
 
 
 /**

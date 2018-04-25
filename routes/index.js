@@ -4,7 +4,7 @@ var router = express.Router();
 var pug = require('pug');
 var fs = require('fs');
 
-var twitchSockets = require('../custom_modules/twitch_sockets');
+var twitch = require('../custom_modules/twitch');
 
 function renderFrontend() {
 	// Re-render the static viewer html
@@ -37,7 +37,7 @@ router.post('/testChannelSocket', (req, res, next) => {
 	console.log("Sending socket broadcast!");
 	console.log(req.body);
 
-	twitchSockets.io.to(req.body.channelID).emit('test', req.body.message);
+	twitch.io.to(req.body.channelID).emit('test', req.body.message);
 	res.end();
 });
 
@@ -46,7 +46,7 @@ router.post('/testUserSocket', (req, res, next) => {
 	console.log("Sending socket whisper!");
 	console.log(req.body);
 
-	twitchSockets.io.to(req.body.socketID).emit('whisper', req.body.message);
+	twitch.io.to(req.body.socketID).emit('whisper', req.body.message);
 	res.end();
 });
 
@@ -55,7 +55,7 @@ router.post('/testPubsubBroadcast', (req, res, next) => {
 	console.log("Sending PubSub broadcast!");
 	console.log(req.body);
 
-	twitchSockets.sendPubSub(req.body.channelID, 'broadcast', 'application/text', req.body.message);
+	twitch.sendPubSub(req.body.channelID, 'broadcast', 'application/text', req.body.message);
 	res.end();
 });
 
@@ -64,7 +64,7 @@ router.post('/testPubsubWhisper', (req, res, next) => {
 	console.log("Sending PubSub whisper!");
 	console.log(req.body);
 
-	twitchSockets.sendPubSub(req.body.channelID, "whisper-"+req.body.opaqueID, 'application/text', req.body.message);
+	twitch.sendPubSub(req.body.channelID, "whisper-"+req.body.opaqueID, 'application/text', req.body.message);
 	res.end();
 });
 
