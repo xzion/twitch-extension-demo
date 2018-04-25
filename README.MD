@@ -25,6 +25,9 @@ Once you've created your extension on Twitch, navigate to `Versions -> Manage ->
 * Set up your environment variables
   * Set `EXTENSION_CLIENT_ID` as the Client ID of your extension, which you can find on your extension Overview page
   * Set `EXTENSION_SECRET_KEY` as your Secret Key, which you can find in `Versions -> Manage -> Settings -> Secret Keys`
+  * Set `DEVELOPER_USER_ID` as the Twitch ID of the account that created the extension
+  * Set `EXTENSION_VERSION` to `0.0.1`. This is the version of your extension, and needs to be updated as you create new version in the Twitch extension dashboard
+  * Set `EXTENSION_CONFIG_STRING` to anything to start off with. This is used for the optional Required Configuration option that extensions can use. If you decide to use the feature, this variable should match exactly what you have entered at `Versions -> Manage -> Extension Capabilities -> Required Configurations`.
 * Call `npm start`
 
 #### Test the demo locally
@@ -67,7 +70,7 @@ Everything inside the `frontend` folder is what you're going to give to Twitch t
 
 Everything outside the `frontend` folder is your Extension Backend Service (EBS). The demo follows the standard Express genenator layout. Routing is in `routes`, templates for pages on the EBS are in `views`, and all of your public assests for EBS pages are in `public`.
 
-The `custom_modules` folder contains `twitch_sockets.js`, which does all of the heavy lifting for comms to the viewers on Twitch. You should extend this module with any additional functions you want that involves communication with Twitch, and then require it in your routes, as is demonstrated in `routes/index.js`.
+The `custom_modules` folder contains `twitch` and `extension_sockets`, which do all of the heavy lifting for comms to the viewers on Twitch. You should extend these modules with any additional functions you want that involves communication with Twitch, and then require them in your routes, as is demonstrated in `routes/index.js`.
 
 #### Hosting your EBS
 
