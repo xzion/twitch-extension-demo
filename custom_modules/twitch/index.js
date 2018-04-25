@@ -159,6 +159,25 @@ twitch.getOAuthTokens = async function (code) {
     }
 }
 
+// For getting a user's email address, requires the user's ID and OAuth access token
+twitch.getUserInfo = async function (userID, access_token) {
+    try {
+        return await rpn.get({
+            url: `https://api.twitch.tv/helix/users?id=${userID}`,
+            headers: {
+                Authorization: "Bearer " + access_token
+            },
+            json: true
+        });
+    } catch (e) {
+        wins.error("Failed to get user info for " + userID + " Twitch: " + e);
+        throw {
+            status: 500,
+            msg: "Internal server error"
+        }
+    }
+}
+
 
 
 module.exports = twitch;
