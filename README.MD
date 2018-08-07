@@ -5,7 +5,7 @@ A simple demonstration of a video overlay extension for Twitch. The demo contain
 ## Getting Started
 
 #### Create and configure your extension on Twitch
-Follow the [Twitch Onboarding procedure](https://dev.twitch.tv/docs/extensions/onboarding). If you do not already have affiliate/partner status, you will have to go through Amazon tax reviews, which may take some time. Make sure you select the "Video Overlay" extension type.
+Follow the [Twitch Onboarding procedure](https://dev.twitch.tv/docs/extensions/onboarding). If you do not already have affiliate/partner status, you will have to go through Amazon tax reviews, which may take some time. This demo should work for any extension type as long as you use the correct file name for the primary view.
 
 Once you've created your extension on Twitch, navigate to `Versions -> Manage -> Asset Hosting`
 * Set Testing Base URI to `https://localhost:9999/frontend/`

@@ -6,17 +6,17 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "body-parser": "~1.18.2",
+    "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
-    "express": "~4.15.5",
-    "jsonwebtoken": "^8.2.1",
+    "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "morgan": "~1.9.0",
     "pug": "2.0.0-beta11",
-    "request": "^2.85.0",
+    "request": "^2.87.0",
     "request-promise-native": "^1.0.5",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.1.0",
-    "winston": "^2.4.2"
+    "socket.io": "^2.1.1",
+    "winston": "^2.4.3"
   }
 }

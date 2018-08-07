@@ -11,13 +11,16 @@ let log_level = "debug";
 if (process.env.LOG_LEVEL) log_level = process.env.LOG_LEVEL;
 wins.configure({
     transports: [
-        new wins.transports.Console()
+        new wins.transports.Console({
+            format: wins.format.simple()
+        })
     ],
     level: log_level
 });
 
 // Terminate on unhandle Promise rejections
 process.on('unhandledRejection', e => {
+  wins.error("UNHANDLED PROMISE EXCEPTION");
   wins.error(e);
   process.exit(1);
 });
@@ -33,6 +36,27 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
+
+// Middleware for enforcing https on heroku
+var enforceHttps = (req, res, next) => {
+    if (req.header('x-forwarded-proto') != 'https') {
+        res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
+    } else {
+        next();
+    }
+};
+
+if (process.env.NODE_ENV == 'production') {
+  // Uncomment the line below to enforce HTTPS in production on Heroku
+  // app.use(enforceHttps);
+} else {
+  app.locals.pretty = true;
+  app.use((req, res, next) => {
+    // In dev mode every page load will re-render the frontend
+    index.renderFrontend();
+    next();
+  });
+}
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
