@@ -74,6 +74,29 @@ twitch.sendPubSub = async function (channel, target, contentType, message) {
     }
 }
 
+// Send a chat message via the extension interface
+twitch.sendChatMessage = async function (channelID, message) {
+    try {
+        let devJWT = await createServerJWT(channelID);
+
+        await rpn.post({
+            url: `https://api.twitch.tv/extensions/${process.env.EXTENSION_CLIENT_ID}/${process.env.EXTENSION_VERSION}/channels/${channelID}/chat`,
+            headers: {
+                "Client-ID": process.env.EXTENSION_CLIENT_ID,
+                "Authorization": "Bearer " + devJWT
+            },
+            json: {
+                text: message
+            }
+        });
+
+    } catch (e) {
+        wins.error("Failed to send message to chat!");
+        wins.error(e);
+        // No throw
+    }
+}
+
 // For external functions to verify JWT's
 twitch.verifyJWT = async function (token) {
     try {
@@ -156,6 +179,35 @@ twitch.getOAuthTokens = async function (code) {
             status: 500,
             msg: "Internal server error"
         }
+    }
+}
+
+// For refreshing Twitch user OAuth tokens
+twitch.refreshAccessToken = async function (refresh_token) {
+    try {
+        // Remember this needs to use the other type of secret
+        let formData = {
+            client_id: process.env.EXTENSION_CLIENT_ID,
+            client_secret: process.env.EBS_SECRET,
+            grant_type: "refresh_token",
+            refresh_token: refresh_token
+        };
+
+        let res = await rpn.post({
+            url: "https://id.twitch.tv/oauth2/token",
+            form: formData
+        });
+        let tokens = JSON.parse(res);
+
+        return tokens;
+
+    } catch (e) {
+        wins.error("Failed to refresh Twitch OAuth token");
+        wins.error(e);
+        throw {
+            status: 500,
+            msg: "Internal Sever Error"
+        };
     }
 }
 

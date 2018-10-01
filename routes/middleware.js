@@ -3,12 +3,8 @@ const wins = require('winston');
 
 
 async function verifyToken (req, res, next) {
-    let token = null;
-    if (req.method == "GET") {
-        token = req.query.token;
-    } else if (req.method == "POST") {
-        token = req.body.token;
-    }
+    // Get the JWT from the headers
+    let token = req.get('x-twitch-jwt');
 
     if (token) {
         // Verify the token

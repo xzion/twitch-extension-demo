@@ -92,7 +92,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // CORS
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, x-twitch-jwt');
     res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST');
     // Note that the origin of an extension iframe will be null
     // so the Access-Control-Allow-Origin has to be wildcard.
