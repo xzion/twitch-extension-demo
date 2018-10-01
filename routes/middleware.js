@@ -47,6 +47,15 @@ async function verifyModerator(req, res, next) {
     }
 }
 
+// The custom exception catcher app middleware
+async function customErrorHandler(err, req, res, next) {
+    if (err.status && err.msg) {
+        res.status(err.status).send({err: err.msg});
+    } else {
+        next(err);
+    }
+}
+
 function errorHandler(asyncFn) {
     return async (req, res, next) => {
         try {
@@ -100,5 +109,6 @@ module.exports = {
     ge: genericError,
     verifyToken: errorHandler(verifyToken),
     verifyModerator: errorHandler(verifyModerator),
-    verifyBroadcaster: errorHandler(verifyBroadcaster)
+    verifyBroadcaster: errorHandler(verifyBroadcaster),
+    customErrorHandler,
 };

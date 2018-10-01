@@ -6,7 +6,7 @@
 
 var app = require('../app');
 var debug = require('debug')('twitch-extension-demo:server');
-// var http = require('http');
+var http = require('http');
 var fs = require('fs');
 var https = require('https');
 

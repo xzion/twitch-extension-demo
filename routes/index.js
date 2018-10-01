@@ -51,21 +51,21 @@ router.post('/testUserSocket', (req, res, next) => {
 });
 
 // Test to all viewers in a channel via Twitch PubSub
-router.post('/testPubsubBroadcast', mw.eh(async (req, res, next) => {
+router.post('/testPubsubBroadcast', async (req, res, next) => {
     wins.debug("Sending PubSub broadcast!");
     wins.debug(req.body);
 
     await twitch.sendPubSub(req.body.channelID, 'broadcast', 'application/text', req.body.message);
     res.end();
-}));
+});
 
 // Test whisper to a specific user in a specific channel via Twitch PubSub
-router.post('/testPubsubWhisper', mw.eh(async (req, res, next) => {
+router.post('/testPubsubWhisper', async (req, res, next) => {
     wins.debug("Sending PubSub whisper!");
     wins.debug(req.body);
 
     await twitch.sendPubSub(req.body.channelID, "whisper-"+req.body.opaqueID, 'application/text', req.body.message);
     res.end();
-}));
+});
 
 module.exports = router;

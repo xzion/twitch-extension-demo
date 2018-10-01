@@ -10,6 +10,8 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "^4.16.3",
+    "express-async-errors": "^3.0.0",
+    "fast-safe-stringify": "^2.0.6",
     "jsonwebtoken": "^8.3.0",
     "morgan": "~1.9.0",
     "pug": "2.0.0-beta11",
